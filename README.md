@@ -5,5 +5,5 @@ This script update your desktop background to the most recent real photography o
 - [x] fetch script
 - [ ] installation script
 - [ ] installation doc
-- [ ] adapt resizing automatically to every screen res/format
+- [x] smart resizing to screen resolution
 - [ ] date incrustation option

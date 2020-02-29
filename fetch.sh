@@ -1,16 +1,17 @@
 #!/bin/bash
+# initialization
 cd /usr/share/backgrounds/earth
 ID=`pgrep -f gnome-session`
 export "`grep -z DBUS_SESSION_BUS_ADDRESS /proc/$ID/environ | tr -d '\000'`"
 export "`grep -z XDG_RUNTIME_DIR /proc/$ID/environ | tr -d '\000'`"
-
 if [ -f running ]
 then
 	exit 1
 fi
 echo PID $$ > running
 
-if ! curl -s -m 30 https://epic.gsfc.nasa.gov/api/natural > json
+# fetch info
+if ! curl -s -m 30 'https://epic.gsfc.nasa.gov/api/natural' > json
 then
 	echo Connection error
 	rm -f running
@@ -20,6 +21,7 @@ date=`jq '.[-1].date' json`
 img=`jq '.[-1].image' json | tr -d '"'`
 rm -f json
 
+# download image
 if [ ! -f "$img.png" ]
 then
 	rm -f epic_*.png
@@ -32,11 +34,17 @@ then
 	rm -f wallpaper.png
 fi
 
+# resize image
 if [ -f "$img.png" -a ! -f wallpaper.png ]
 then
-	convert "$img.png" -resize 1080x1080 -gravity center -background black -extent 1920x1080 wallpaper.png
+	dims=`xdpyinfo | awk '/dimensions/{print $2}'`
+	width=`echo $dims | cut -d 'x' -f1`
+	height=`echo $dims | cut -d 'x' -f2`
+	if [ $height -lt $width ]; then min=$height; else min=$width; fi
+	convert "$img.png" -resize ${min}x${min} -gravity center -background black -extent $dims wallpaper.png
 fi
 
+# set wallpaper
 gsettings set org.gnome.desktop.background picture-options 'scaled'
 gsettings set org.gnome.desktop.background picture-uri '' # to force update
 gsettings set org.gnome.desktop.background picture-uri file://`pwd`/wallpaper.png
