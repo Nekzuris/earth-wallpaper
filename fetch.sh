@@ -4,6 +4,7 @@ cd /usr/share/backgrounds/earth
 ID=`pgrep -f gnome-session`
 export "`grep -z DBUS_SESSION_BUS_ADDRESS /proc/$ID/environ | tr -d '\000'`"
 export "`grep -z XDG_RUNTIME_DIR /proc/$ID/environ | tr -d '\000'`"
+export DISPLAY=:0
 if [ -f running ]
 then
 	exit 1
