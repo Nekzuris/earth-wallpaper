@@ -1,4 +1,5 @@
 #!/bin/bash
+[ "$1" = '-log' ] && date
 # initialization
 cd /usr/share/backgrounds/earth
 ID=`pgrep -f gnome-session`
@@ -18,6 +19,7 @@ then
 	rm -f running
 	exit 2
 fi
+[ "$1" = '-log' ] && echo "json downloaded"
 date=`jq '.[-1].date' json`
 img=`jq '.[-1].image' json | tr -d '"'`
 rm -f json
@@ -33,6 +35,7 @@ then
 		exit 3
 	fi
 	rm -f wallpaper.png
+	[ "$1" = '-log' ] && echo "image downloaded"
 fi
 
 # resize image
@@ -43,11 +46,13 @@ then
 	height=`echo $dims | cut -d 'x' -f2`
 	if [ $height -lt $width ]; then min=$height; else min=$width; fi
 	convert "$img.png" -resize ${min}x${min} -gravity center -background black -extent $dims wallpaper.png
+	[ "$1" = '-log' ] && echo "wallpaper resized"
 fi
 
 # set wallpaper
 gsettings set org.gnome.desktop.background picture-options 'scaled'
 gsettings set org.gnome.desktop.background picture-uri '' # to force update
 gsettings set org.gnome.desktop.background picture-uri file://`pwd`/wallpaper.png
+[ "$1" = '-log' ] && echo "wallpaper set"
 
 rm -f running
